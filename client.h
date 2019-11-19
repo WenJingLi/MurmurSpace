@@ -14,6 +14,7 @@ public:
     bool Connect(const sockaddr_in* addr);
     ssize_t Write(const void* buf, size_t bytes);
     ssize_t Read(void* buf, size_t bytes);
+    void CloseClientSocket();
 
 private:
     int m_client_sock;

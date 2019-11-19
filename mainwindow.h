@@ -4,8 +4,6 @@
 #include <QMainWindow>
 #include <netinet/in.h>
 
-class Client;
-
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -23,7 +21,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    Client* m_client;
     sockaddr_in m_server_addr;
 
 };

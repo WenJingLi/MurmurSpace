@@ -15,11 +15,7 @@ Client::Client()
 
 Client::~Client()
 {
-    if (-1 != m_client_sock)
-    {
-        close(m_client_sock);
-        m_client_sock = -1;
-    }
+    CloseClientSocket();
 }
 
 bool Client::Connect(const sockaddr_in *addr)
@@ -56,4 +52,13 @@ ssize_t Client::Read(void *buf, size_t bytes)
         return -1;
     }
     return read(m_client_sock, buf, bytes);
+}
+
+void Client::CloseClientSocket()
+{
+    if (-1 != m_client_sock)
+    {
+        close(m_client_sock);
+        m_client_sock = -1;
+    }
 }
