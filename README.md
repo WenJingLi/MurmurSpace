@@ -1,1 +1,1 @@
-socket_client
+Client for Murmur Space
