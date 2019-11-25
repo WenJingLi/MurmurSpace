@@ -17,11 +17,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     client.cpp \
+    clientthread.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     client.h \
+    clientthread.h \
     mainwindow.h
 
 FORMS += \

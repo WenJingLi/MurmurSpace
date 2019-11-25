@@ -2,7 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <netinet/in.h>
+
+class ClientThread;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,7 +22,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    sockaddr_in m_server_addr;
+    ClientThread* m_client_thread;
 
 };
 #endif // MAINWINDOW_H

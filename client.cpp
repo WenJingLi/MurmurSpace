@@ -25,7 +25,7 @@ bool Client::Connect(const sockaddr_in *addr)
         qDebug("Invalid client socket fd!");
         return false;
     }
-    auto result = connect(m_client_sock, (sockaddr*)addr, sizeof(sockaddr_in));
+    auto result = ::connect(m_client_sock, (sockaddr*)addr, sizeof(sockaddr_in));
     if (0 != result)
     {
         qDebug("Failed to execute connect!");
@@ -48,10 +48,37 @@ ssize_t Client::Read(void *buf, size_t bytes)
 {
     if (-1 == m_client_sock)
     {
-        qDebug("Invalid client socket fd!");
+        qDebug("Client::Read --- Invalid client socket fd!");
         return -1;
     }
-    return read(m_client_sock, buf, bytes);
+    if (nullptr == buf)
+    {
+        qDebug("Client::Read --- buf is nullptr!");
+        return -1;
+    }
+    ssize_t size = read(m_client_sock, buf, bytes);
+    emit recvMsg();
+    return size;
+}
+
+ssize_t Client::Read(QString &buf)
+{
+    if (-1 == m_client_sock)
+    {
+        qDebug("Client::Read --- Invalid client socket fd!");
+        return -1;
+    }
+
+    buf.clear();
+    char buffer[256];
+    memset(buffer, 0, 256);
+    ssize_t size = read(m_client_sock, buffer, 256);
+    if (-1 != size)
+    {
+        buf = QString(buffer);
+    }
+    emit recvMsg();
+    return size;
 }
 
 void Client::CloseClientSocket()

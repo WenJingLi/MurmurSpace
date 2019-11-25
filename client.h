@@ -1,22 +1,29 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <QObject>
 #include <sys/types.h>
 
 struct sockaddr_in;
 
-class Client
+class Client : public QObject
 {
+    Q_OBJECT
+signals:
+    void recvMsg();
+
 public:
     Client();
-    ~Client();
+    virtual ~Client();
 
     bool Connect(const sockaddr_in* addr);
     ssize_t Write(const void* buf, size_t bytes);
     ssize_t Read(void* buf, size_t bytes);
-    void CloseClientSocket();
+    ssize_t Read(QString& buf);
 
 private:
+    void CloseClientSocket();
+
     int m_client_sock;
 };
 

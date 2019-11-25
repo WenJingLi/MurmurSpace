@@ -1,26 +1,31 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-#include "client.h"
+#include "clientthread.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , m_client_thread{new ClientThread(this)}
 {
-    m_server_addr.sin_family = AF_INET;
-    m_server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    m_server_addr.sin_port = htons(7777);
-    memset(&m_server_addr.sin_zero, 0, sizeof(m_server_addr.sin_zero));
-
     ui->setupUi(this);
+
+    connect(m_client_thread, &ClientThread::message, ui->textBrowser_info, &QTextBrowser::append);
+
+    if (nullptr != m_client_thread)
+    {
+        m_client_thread->start();
+    }
 }
 
 MainWindow::~MainWindow()
 {
+    if (nullptr != m_client_thread)
+    {
+        delete m_client_thread;
+        m_client_thread = nullptr;
+    }
+
     delete ui;
 }
 
@@ -28,13 +33,15 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_request_clicked()
 {
     ui->textBrowser_info->append("Clicked request!");
-
-    Client client;
-    if (!client.Connect(&m_server_addr))
+    if (nullptr == m_client_thread)
+    {
+        qDebug("The client is nullptr!");
         return;
-
-    char buf[256];
-    client.Read(buf, sizeof(buf) - 1);
-
-    ui->textBrowser_info->append(QString(buf));
+    }
+    if (!m_client_thread->isRunning())
+    {
+        qDebug("The client thread isn't running!");
+        return;
+    }
+    m_client_thread->SendRequest();
 }
