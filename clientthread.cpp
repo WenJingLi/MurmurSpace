@@ -14,11 +14,6 @@ ClientThread::ClientThread(QObject* parent)
     m_server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
     m_server_addr.sin_port = htons(7777);
     memset(&m_server_addr.sin_zero, 0, sizeof(m_server_addr.sin_zero));
-
-    if (nullptr != m_client)
-    {
-        m_client->Connect(&m_server_addr);
-    }
 }
 
 ClientThread::~ClientThread()
@@ -48,8 +43,23 @@ bool ClientThread::SendRequest()
         emit message("Receiving message from server, please wait.");
         return false;
     }
-    m_receiving = true;
-    emit sendRequest();
+
+    if (nullptr == m_client)
+    {
+        qDebug("ClientThread::SendRequest --- m_clent is nullptr!");
+        return false;
+    }
+
+    if (m_client->CreateSocket())
+    {
+        if (!m_client->Connect(&m_server_addr))
+        {
+            m_client->CloseClientSocket();
+            return false;
+        }
+        m_receiving = true;
+        emit sendRequest();
+    }
     return true;
 }
 
@@ -77,5 +87,6 @@ void ClientThread::readMsg()
     {
         qDebug("ClientThread::readMsg --- Read message failed!");
     }
+    m_client->CloseClientSocket();
     m_receiving = false;
 }

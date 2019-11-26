@@ -5,12 +5,9 @@
 #include <netinet/in.h>
 
 Client::Client()
-    : m_client_sock{socket(AF_INET, SOCK_STREAM, 0)}
+    : m_client_sock{-1}
 {
-    if (-1 == m_client_sock)
-    {
-        qDebug("Failed to create client socket fd!");
-    }
+
 }
 
 Client::~Client()
@@ -18,17 +15,28 @@ Client::~Client()
     CloseClientSocket();
 }
 
+bool Client::CreateSocket()
+{
+    m_client_sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (-1 == m_client_sock)
+    {
+        qDebug("Client::CreateSocket --- Failed to create client socket fd!");
+        return false;
+    }
+    return true;
+}
+
 bool Client::Connect(const sockaddr_in *addr)
 {
     if (-1 == m_client_sock)
     {
-        qDebug("Invalid client socket fd!");
+        qDebug("Client::Connect --- Invalid client socket fd!");
         return false;
     }
     auto result = ::connect(m_client_sock, (sockaddr*)addr, sizeof(sockaddr_in));
     if (0 != result)
     {
-        qDebug("Failed to execute connect!");
+        qDebug("Client::Connect --- Failed to execute connect!");
         return false;
     }
     return true;
@@ -38,7 +46,7 @@ ssize_t Client::Write(const void *buf, size_t bytes)
 {
     if (-1 == m_client_sock)
     {
-        qDebug("Invalid client socket fd!");
+        qDebug("Client::Write --- Invalid client socket fd!");
         return -1;
     }
     return write(m_client_sock, buf, bytes);
