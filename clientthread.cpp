@@ -13,7 +13,7 @@ ClientThread::ClientThread(QObject* parent)
     , m_receiving{false}
 {
     m_server_addr.sin_family = AF_INET;
-    m_server_addr.sin_addr.s_addr = INADDR_ANY;
+    m_server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
     m_server_addr.sin_port = htons(7777);
     memset(&m_server_addr.sin_zero, 0, sizeof(m_server_addr.sin_zero));
 }
