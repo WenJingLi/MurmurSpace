@@ -57,6 +57,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="1" column="0">
        <widget class="QPushButton" name="pushButton_request">
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
         <property name="text">
          <string>Request</string>
         </property>

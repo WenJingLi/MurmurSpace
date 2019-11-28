@@ -15,7 +15,10 @@ Client::Client()
 {
 #ifndef __unix__
     WSADATA wsa_data;
-    WSAStartup(MAKEWORD(2, 2), &wsa_data);
+    if (0 != WSAStartup(MAKEWORD(2, 2), &wsa_data))
+    {
+        qDebug("Client::Client --- Failed to init WinSock!(WSAStartup)");
+    }
 #endif
 }
 
