@@ -1,13 +1,22 @@
 #include "client.h"
 #include <QDebug>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+
+#ifdef __unix__
+#   include <unistd.h>
+#   include <sys/socket.h>
+#   include <netinet/in.h>
+#else
+#   include <WinSock2.h>
+#   pragma comment(lib, "ws2_32.lib")
+#endif
 
 Client::Client()
     : m_client_sock{-1}
 {
-
+#ifndef __unix__
+    WSADATA wsa_data;
+    WSAStartup(MAKEWORD(2, 2), &wsa_data);
+#endif
 }
 
 Client::~Client()
@@ -42,17 +51,21 @@ bool Client::Connect(const sockaddr_in *addr)
     return true;
 }
 
-ssize_t Client::Write(const void *buf, size_t bytes)
+int Client::Write(const void *buf, size_t bytes)
 {
     if (-1 == m_client_sock)
     {
         qDebug("Client::Write --- Invalid client socket fd!");
         return -1;
     }
+#ifdef __unix__
     return write(m_client_sock, buf, bytes);
+#else
+    return send(m_client_sock, (const char*)buf, bytes, 0);
+#endif
 }
 
-ssize_t Client::Read(void *buf, size_t bytes)
+int Client::Read(void *buf, size_t bytes)
 {
     if (-1 == m_client_sock)
     {
@@ -64,12 +77,18 @@ ssize_t Client::Read(void *buf, size_t bytes)
         qDebug("Client::Read --- buf is nullptr!");
         return -1;
     }
-    ssize_t size = read(m_client_sock, buf, bytes);
+
+#ifdef __unix__
+    auto size = read(m_client_sock, buf, bytes);
+#else
+    auto size = recv(m_client_sock, (char*)buf, bytes, 0);
+#endif
+
     emit recvMsg();
     return size;
 }
 
-ssize_t Client::Read(QString &buf)
+int Client::Read(QString &buf)
 {
     if (-1 == m_client_sock)
     {
@@ -80,7 +99,11 @@ ssize_t Client::Read(QString &buf)
     buf.clear();
     char buffer[256];
     memset(buffer, 0, 256);
-    ssize_t size = read(m_client_sock, buffer, 256);
+#ifdef __unix__
+    auto size = read(m_client_sock, buffer, 256);
+#else
+    auto size = recv(m_client_sock, buffer, 256, 0);
+#endif
     if (-1 != size)
     {
         buf = QString(buffer);
@@ -93,7 +116,11 @@ void Client::CloseClientSocket()
 {
     if (-1 != m_client_sock)
     {
+#ifdef __unix__
         close(m_client_sock);
+#else
+        closesocket(m_client_sock);
+#endif
         m_client_sock = -1;
     }
 }

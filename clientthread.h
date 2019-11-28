@@ -2,7 +2,12 @@
 #define CLIENTTHREAD_H
 
 #include <QThread>
-#include <netinet/in.h>
+
+#ifdef __unix__
+#   include <netinet/in.h>
+#else
+#   include <WinSock2.h>
+#endif
 
 class Client;
 

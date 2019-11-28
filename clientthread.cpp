@@ -1,8 +1,10 @@
 #include "clientthread.h"
 #include "client.h"
 
-#include <sys/socket.h>
-#include <arpa/inet.h>
+#ifdef __unix__
+#   include <sys/socket.h>
+#   include <arpa/inet.h>
+#endif
 
 ClientThread::ClientThread(QObject* parent)
     : QThread(parent)
@@ -55,6 +57,7 @@ bool ClientThread::SendRequest()
         if (!m_client->Connect(&m_server_addr))
         {
             m_client->CloseClientSocket();
+            emit message("Failed to connect server!");
             return false;
         }
         m_receiving = true;

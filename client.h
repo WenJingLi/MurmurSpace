@@ -2,7 +2,6 @@
 #define CLIENT_H
 
 #include <QObject>
-#include <sys/types.h>
 
 struct sockaddr_in;
 
@@ -18,13 +17,12 @@ public:
 
     bool CreateSocket();
     bool Connect(const sockaddr_in* addr);
-    ssize_t Write(const void* buf, size_t bytes);
-    ssize_t Read(void* buf, size_t bytes);
-    ssize_t Read(QString& buf);
+    int Write(const void* buf, size_t bytes);
+    int Read(void* buf, size_t bytes);
+    int Read(QString& buf);
     void CloseClientSocket();
 
 private:
-
     int m_client_sock;
 };
 

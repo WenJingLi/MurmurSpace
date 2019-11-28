@@ -32,7 +32,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_request_clicked()
 {
-    ui->textBrowser_info->append("Clicked request!");
     if (nullptr == m_client_thread)
     {
         qDebug("The client is nullptr!");
