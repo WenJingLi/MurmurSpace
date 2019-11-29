@@ -24,7 +24,7 @@ public:
 
     virtual void run() override;
 
-    bool SendRequest();
+    bool SendMsg(const QString& msg);
 
 private slots:
     void transmitMsg();

@@ -105,7 +105,7 @@ int Client::Read(QString &buf)
 #ifdef __unix__
     auto size = read(m_client_sock, buffer, 256);
 #else
-    auto size = recv(m_client_sock, buffer, 256, 0);
+    auto size = recv(m_client_sock, buffer, 255, 0);
 #endif
     if (-1 != size)
     {

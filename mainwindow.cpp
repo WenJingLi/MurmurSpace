@@ -29,8 +29,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-void MainWindow::on_pushButton_request_clicked()
+void MainWindow::on_pushButton_send_clicked()
 {
     if (nullptr == m_client_thread)
     {
@@ -42,5 +41,6 @@ void MainWindow::on_pushButton_request_clicked()
         qDebug("The client thread isn't running!");
         return;
     }
-    m_client_thread->SendRequest();
+
+    m_client_thread->SendMsg(ui->textEdit_msg->toPlainText());
 }

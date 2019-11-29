@@ -13,7 +13,7 @@ ClientThread::ClientThread(QObject* parent)
     , m_receiving{false}
 {
     m_server_addr.sin_family = AF_INET;
-    m_server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    m_server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     m_server_addr.sin_port = htons(7777);
     memset(&m_server_addr.sin_zero, 0, sizeof(m_server_addr.sin_zero));
 }
@@ -32,13 +32,13 @@ ClientThread::~ClientThread()
 
 void ClientThread::run()
 {
-    emit message(QString("Start client thread."));
+    emit message(QString("Client started."));
     connect(m_client, &Client::recvMsg, this, &ClientThread::transmitMsg);
     connect(this, &ClientThread::sendRequest, this, &ClientThread::readMsg);
     exec();
 }
 
-bool ClientThread::SendRequest()
+bool ClientThread::SendMsg(const QString& msg)
 {
     if (m_receiving)
     {
@@ -60,6 +60,7 @@ bool ClientThread::SendRequest()
             emit message("Failed to connect server!");
             return false;
         }
+        m_client->Write(msg.toStdString().c_str(), msg.size());
         m_receiving = true;
         emit sendRequest();
     }
