@@ -15,12 +15,11 @@ public:
     Client();
     virtual ~Client();
 
-    bool CreateSocket();
-    bool Connect(const sockaddr_in* addr);
-    int Write(const void* buf, size_t bytes);
-    int Read(void* buf, size_t bytes);
-    int Read(QString& buf);
-    void CloseClientSocket();
+    bool createSocket();
+    bool connect(const sockaddr_in* addr);
+    int read(char *buf);
+    bool sendMsg(const char *msg, const size_t &len);
+    void closeClientSocket();
 
 private:
     int m_client_sock;

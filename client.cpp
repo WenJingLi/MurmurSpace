@@ -10,6 +10,8 @@
 #   pragma comment(lib, "ws2_32.lib")
 #endif
 
+extern const unsigned int RECV_SIZE;
+
 Client::Client()
     : m_client_sock{-1}
 {
@@ -24,10 +26,10 @@ Client::Client()
 
 Client::~Client()
 {
-    CloseClientSocket();
+    closeClientSocket();
 }
 
-bool Client::CreateSocket()
+bool Client::createSocket()
 {
     m_client_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (-1 == m_client_sock)
@@ -38,7 +40,7 @@ bool Client::CreateSocket()
     return true;
 }
 
-bool Client::Connect(const sockaddr_in *addr)
+bool Client::connect(const sockaddr_in *addr)
 {
     if (-1 == m_client_sock)
     {
@@ -51,47 +53,25 @@ bool Client::Connect(const sockaddr_in *addr)
         qDebug("Client::Connect --- Failed to execute connect!");
         return false;
     }
+
     return true;
 }
 
-int Client::Write(const void *buf, size_t bytes)
+bool Client::sendMsg(const char *msg, const size_t &len)
 {
     if (-1 == m_client_sock)
     {
-        qDebug("Client::Write --- Invalid client socket fd!");
+        qDebug("Client::sendMsg --- Invalid client socket fd!");
         return -1;
     }
 #ifdef __unix__
-    return write(m_client_sock, buf, bytes);
+    return write(m_client_sock, msg, len);
 #else
-    return send(m_client_sock, (const char*)buf, bytes, 0);
+    return send(m_client_sock, msg, len, 0);
 #endif
 }
 
-int Client::Read(void *buf, size_t bytes)
-{
-    if (-1 == m_client_sock)
-    {
-        qDebug("Client::Read --- Invalid client socket fd!");
-        return -1;
-    }
-    if (nullptr == buf)
-    {
-        qDebug("Client::Read --- buf is nullptr!");
-        return -1;
-    }
-
-#ifdef __unix__
-    auto size = read(m_client_sock, buf, bytes);
-#else
-    auto size = recv(m_client_sock, (char*)buf, bytes, 0);
-#endif
-
-    emit recvMsg();
-    return size;
-}
-
-int Client::Read(QString &buf)
+int Client::read(char *buf)
 {
     if (-1 == m_client_sock)
     {
@@ -99,23 +79,23 @@ int Client::Read(QString &buf)
         return -1;
     }
 
-    buf.clear();
-    char buffer[256];
-    memset(buffer, 0, 256);
+    memset(buf, 0, RECV_SIZE);
 #ifdef __unix__
-    auto size = read(m_client_sock, buffer, 256);
+    auto size = recv(m_client_sock, buf, RECV_SIZE, MSG_NOSIGNAL);
 #else
-    auto size = recv(m_client_sock, buffer, 255, 0);
+    auto size = recv(m_client_sock, buf, RECV_SIZE, 0);
 #endif
-    if (-1 != size)
+
+    if (0 >= size)
     {
-        buf = QString(buffer);
+        std::string m{"socket recv failed"};
+        memcpy(buf, m.data(), m.size());
     }
     emit recvMsg();
     return size;
 }
 
-void Client::CloseClientSocket()
+void Client::closeClientSocket()
 {
     if (-1 != m_client_sock)
     {

@@ -21,6 +21,8 @@ private slots:
     void on_pushButton_send_clicked();
 
 private:
+    bool eventFilter(QObject *obj, QEvent *e);
+
     Ui::MainWindow *ui;
     ClientThread* m_client_thread;
 

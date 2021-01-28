@@ -28,13 +28,12 @@ public:
 
 private slots:
     void transmitMsg();
-    void readMsg();
+    bool readMsg();
 
 private:
     Client* m_client;
     sockaddr_in m_server_addr;
-    QString m_msg;
-    bool m_receiving;
+    char *m_msg;
 };
 
 #endif // CLIENTTHREAD_H
